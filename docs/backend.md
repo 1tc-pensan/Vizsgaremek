@@ -572,7 +572,7 @@ Authorization: Bearer {{user_token}}
 
 ---
 
-## 10. Feature tesztek
+## 11. Feature tesztek
 
 A projekt a Laravel beépített PHPUnit tesztelési keretrendszerét használja.
 
@@ -615,38 +615,6 @@ public function test_authenticated_user_can_create_report(): void
 
     $response->assertStatus(201)
              ->assertJsonFragment(['title' => 'Teszt bejelentés']);
-}
-```
-
-### Feature teszt példa – Jogosulatlan hozzáférés
-
-```php
-public function test_guest_cannot_create_report(): void
-{
-    $response = $this->postJson('/api/reports', [
-        'title' => 'Teszt',
-    ]);
-
-    $response->assertStatus(401);
-}
-```
-
-### Feature teszt példa – Admin jóváhagyás
-
-```php
-public function test_admin_can_approve_report(): void
-{
-    $admin = User::factory()->create(['role' => 'admin']);
-    $report = Report::factory()->create(['status' => 'pending']);
-
-    $response = $this->actingAs($admin)
-                     ->putJson("/api/admin/reports/{$report->id}/approve");
-
-    $response->assertStatus(200);
-    $this->assertDatabaseHas('reports', [
-        'id' => $report->id,
-        'status' => 'approved',
-    ]);
 }
 ```
 
@@ -704,7 +672,30 @@ backend/
 
 ---
 
-## 13. Összefoglaló
+## 13. Hasznos Artisan parancsok
+
+```bash
+# Migrációk futtatása
+php artisan migrate
+
+# Migrációk visszavonása és újrafuttatás
+php artisan migrate:fresh --seed
+
+# Seeder-ek futtatása
+php artisan db:seed
+
+# Útvonalak listázása
+php artisan route:list
+
+# Konfiguráció cache-elés
+php artisan config:cache
+
+# Storage symlink létrehozása
+php artisan storage:link
+```
+
+
+## 14. Összefoglaló
 
 | Szempont | Részlet |
 |---|---|
