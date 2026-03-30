@@ -1,0 +1,4 @@
+/* Admin – Felhasználók */
+.table tbody tr:hover td {
+  color: var(--sf-text);
+}

@@ -1,0 +1,12 @@
+/* ── Regisztráció oldal ── */
+.card {
+  border-top: 2px solid #1e2d45;
+}
+
+.card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a9dba;
+}

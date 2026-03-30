@@ -1,0 +1,91 @@
+@if (loading) {
+  <div class="text-center py-5"><div class="spinner-border"></div></div>
+}
+
+@if (report) {
+  <button class="btn btn-outline-secondary btn-sm mb-3" (click)="goBack()">&#8592; Vissza</button>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-body p-4">
+
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h2 class="me-3 mb-0">{{ report.title }}</h2>
+            @if (isOwner() || auth.isAdmin()) {
+              <div class="d-flex gap-2 flex-shrink-0">
+                <a [routerLink]="['/reports', report.id, 'edit']" class="btn btn-sm btn-outline-secondary">Szerkesztés</a>
+                <button class="btn btn-sm btn-outline-danger" (click)="delete()">Törlés</button>
+              </div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <span class="badge bg-secondary me-2">{{ report.category?.name }}</span>
+          </div>
+
+          <p class="lead">{{ report.description }}</p>
+
+          <table class="table table-sm table-bordered w-auto mb-4">
+            <tr><th>Dátum</th><td>{{ report.date | date:'yyyy. MM. dd.' }}</td></tr>
+            <tr><th>Helyszín</th><td>{{ (report.latitude && report.longitude) ? (report.latitude + ', ' + report.longitude) : '—' }}</td></tr>
+            <tr><th>Tanúk</th><td>{{ report.witnesses ?? 0 }}</td></tr>
+            <tr><th>Bejelentő</th><td>{{ report.user?.name }}</td></tr>
+          </table>
+
+          @if (report.latitude && report.longitude) {
+            <div class="mb-4">
+              <h6>Helyszín a térképen</h6>
+              <app-map
+                [lat]="report.latitude"
+                [lng]="report.longitude"
+                [clickable]="false"
+                height="300px">
+              </app-map>
+            </div>
+          }
+
+          <div class="text-center pt-2">
+            <p class="mb-2 fw-bold" style="color: var(--sf-text)">Hitelesség: {{ report.upvotes_count - report.downvotes_count }}</p>
+            @if (voteMessage) {
+              <div class="alert alert-success py-1 mb-2">{{ voteMessage }}</div>
+            }
+            <button class="btn btn-success me-2" (click)="vote('up')">&#128077; {{ report.upvotes_count }}</button>
+            <button class="btn btn-danger" (click)="vote('down')">&#128078; {{ report.downvotes_count }}</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <h5>Képek</h5>
+      @if (report.images?.length > 0) {
+        <div class="d-flex flex-wrap gap-2">
+          @for (img of report.images; track img.id; let i = $index) {
+            <div class="detail-img-thumb" (click)="openLightbox(i)" title="Kép nagyítása">
+              <img [src]="imageUrl(img)" alt="">
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-muted small">Ehhez a bejelentéshez nem tartoznak képek.</p>
+      }
+    </div>
+
+  </div>
+
+  @if (lightboxIndex !== null) {
+    <div class="lightbox-backdrop" (click)="closeLightbox()" (keydown)="onLightboxKey($event)" tabindex="0">
+      <div class="lightbox-box" (click)="$event.stopPropagation()">
+        <button class="lightbox-close" (click)="closeLightbox()">&times;</button>
+        <img [src]="imageUrl(report.images[lightboxIndex])" class="lightbox-img" alt="">
+        @if (report.images.length > 1) {
+          <button class="lightbox-arrow lightbox-arrow-left" (click)="lightboxPrev()">&#10094;</button>
+          <button class="lightbox-arrow lightbox-arrow-right" (click)="lightboxNext()">&#10095;</button>
+          <div class="lightbox-counter">{{ lightboxIndex + 1 }} / {{ report.images.length }}</div>
+        }
+      </div>
+    </div>
+  }
+}

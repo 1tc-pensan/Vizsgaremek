@@ -1,0 +1,126 @@
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <button class="btn btn-outline-secondary btn-sm mb-3" (click)="goBack()">&#8592; Vissza</button>
+    <div class="card">
+      <div class="card-body p-4">
+        <h3 class="mb-4">{{ isEdit ? 'Bejelentés szerkesztése' : 'Új bejelentés' }}</h3>
+
+        @if (error) {
+          <div class="alert alert-danger">{{ error }}</div>
+        }
+
+        <form (ngSubmit)="submit()">
+          <div class="mb-3">
+            <label class="form-label">Kategória *</label>
+            <select class="form-select" [(ngModel)]="form['category_id']" name="category_id" required>
+              <option value="">Válassz kategóriát...</option>
+              @for (cat of categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Cím *</label>
+            <input type="text" class="form-control" [(ngModel)]="form['title']" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Leírás *</label>
+            <textarea class="form-control" [(ngModel)]="form['description']" name="description" rows="5" required></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Szélességi fok (latitude)</label>
+              <input type="number" class="form-control" [(ngModel)]="form['latitude']" name="latitude" step="any" min="-90" max="90">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Hosszúsági fok (longitude)</label>
+              <input type="number" class="form-control" [(ngModel)]="form['longitude']" name="longitude" step="any" min="-180" max="180">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Helyszín megjelölése térképen <span class="text-muted">(opcionális – kattints a helyszínre)</span></label>
+            <app-map
+              [lat]="form['latitude'] || null"
+              [lng]="form['longitude'] || null"
+              [clickable]="true"
+              height="280px"
+              (mapClick)="onMapClick($event)">
+            </app-map>
+            @if (form['latitude'] && form['longitude']) {
+              <small class="text-success">
+                📍 Kijelölt koordináta: {{ form['latitude'] }}, {{ form['longitude'] }}
+                <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-danger" (click)="form['latitude']=''; form['longitude']=''">Törlés</button>
+              </small>
+            }
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Esemény dátuma *</label>
+              <input type="date" class="form-control" [(ngModel)]="form['date']" name="date" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tanúk száma</label>
+              <input type="number" class="form-control" [(ngModel)]="form['witnesses']" name="witnesses" min="0">
+            </div>
+          </div>
+          @if (!isEdit) {
+            <div class="mb-3">
+              <label class="form-label">Képek (opcionális)</label>
+              <input
+                type="file"
+                class="form-control"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                multiple
+                (change)="onFilesSelected($event)">
+              <div class="form-text">Max. 10 kép, egyenként max. 5 MB (jpeg, png, gif, webp).</div>
+              @if (previews.length > 0) {
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                  @for (p of previews; track p; let i = $index) {
+                    <div class="edit-img-thumb position-relative">
+                      <img [src]="p" alt="">
+                      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 lh-1 img-delete-btn" (click)="removeSelectedFile(i)">&times;</button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @if (isEdit) {
+            <div class="mb-3">
+              <label class="form-label">Képek</label>
+              @if (existingImages.length > 0) {
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  @for (img of existingImages; track img.id) {
+                    <div class="edit-img-thumb position-relative">
+                      <img [src]="imageUrl(img)" alt="">
+                      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-0 lh-1 img-delete-btn" (click)="deleteExistingImage(img.id)">&times;</button>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-muted small">Nincsenek képek.</p>
+              }
+              @if (uploadError) {
+                <div class="alert alert-danger py-1 mb-2">{{ uploadError }}</div>
+              }
+              <input
+                type="file"
+                class="form-control"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                multiple
+                [disabled]="uploading"
+                (change)="onEditFilesSelected($event)">
+              <div class="form-text">{{ uploading ? 'Feltöltés...' : 'Új képek hozzáadása (max. 5 MB/kép).' }}</div>
+            </div>
+          }
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              {{ loading ? 'Mentés...' : (isEdit ? 'Mentés' : 'Bejelentés küldése') }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="goBack()">Mégse</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

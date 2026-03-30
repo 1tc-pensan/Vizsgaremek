@@ -1,0 +1,50 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/"><i class="bi bi-upc-scan me-2"></i>UFO // REPORT</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Bejelentések</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/statistics" routerLinkActive="active">Statisztikák</a>
+        </li>
+        @if (auth.isLoggedIn()) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/reports/create">+ Új bejelentés</a>
+          </li>
+        }
+        @if (auth.isAdmin()) {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Admin</a>
+            <ul class="dropdown-menu navbar-dropdown">
+              <li><a class="dropdown-item" routerLink="/admin/reports">Bejelentések</a></li>
+              <li><a class="dropdown-item" routerLink="/admin/users">Felhasználók</a></li>
+              <li><a class="dropdown-item" routerLink="/admin/categories">Kategóriák</a></li>
+            </ul>
+          </li>
+        }
+      </ul>
+      <ul class="navbar-nav">
+        @if (auth.isLoggedIn()) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/profile">{{ auth.currentUser()?.name }}</a>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light btn-sm mt-1 ms-2" (click)="auth.logout()">Kijelentkezés</button>
+          </li>
+        } @else {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/login">Bejelentkezés</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/register">Regisztráció</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>

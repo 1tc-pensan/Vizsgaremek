@@ -1,0 +1,156 @@
+
+
+@if (top3.length > 0) {
+  <div class="slider-wrapper mb-5"
+       (mouseenter)="stopSlider()"
+       (mouseleave)="startSlider()">
+
+    <!-- Slider kép + overlay -->
+    @for (report of top3; track report.id; let i = $index) {
+      @if (i === sliderIndex) {
+        <a [routerLink]="['/reports', report.id]" class="text-decoration-none">
+          <div class="slider-inner w-100 h-100 rounded overflow-hidden position-relative">
+            @if (report.images?.length > 0) {
+              <img [src]="imageUrl(report.images[0].image_path)"
+                   class="slider-img w-100 h-100"
+                   alt="">
+            } @else {
+              <div class="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center">
+                <span class="text-white fs-1">🛸</span>
+              </div>
+            }
+            <!-- Szöveg overlay bal alul -->
+            <div class="slider-overlay position-absolute bottom-0 start-0 end-0 px-4 py-3">
+              <h5 class="text-white mb-1 fw-bold">{{ report.title }}</h5>
+              <p class="text-white mb-0 small">
+                {{ report.description.length > 60 ? (report.description | slice:0:60) + '...' : report.description }}
+              </p>
+            </div>
+          </div>
+        </a>
+      }
+    }
+
+    <!-- Bal nyíl -->
+    <button class="slider-arrow position-absolute top-50 start-0 translate-middle-y ms-2"
+            (click)="sliderPrev()">&#8592;</button>
+
+    <!-- Jobb nyíl -->
+    <button class="slider-arrow position-absolute top-50 end-0 translate-middle-y me-2"
+            (click)="sliderNext()">&#8594;</button>
+
+    <!-- Dot indikátorok (középen alul) -->
+    <div class="slider-dots position-absolute bottom-0 start-50 translate-middle-x d-flex gap-1 p-2">
+      @for (report of top3; track report.id; let i = $index) {
+        <span class="slider-dot rounded-circle d-inline-block"
+              [class.active]="i === sliderIndex"
+              (click)="sliderIndex = i"></span>
+      }
+    </div>
+
+    <!-- Tovább gomb (jobb alul) -->
+    <a [routerLink]="['/reports', top3[sliderIndex].id]"
+       class="btn btn-sm position-absolute bottom-0 end-0 mb-2 me-2 slider-more-btn">
+      Tovább →
+    </a>
+
+  </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  @if (auth.isLoggedIn()) {
+    <a routerLink="/reports/create" class="btn btn-primary">+ Új bejelentés</a>
+  }
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="filters['category_id']" (ngModelChange)="onFilterChange()">
+          <option value="">Minden kategória</option>
+          @for (cat of categories; track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-2">
+        <input type="date" class="form-control" [(ngModel)]="filters['date_from']" (ngModelChange)="onFilterChange()">
+      </div>
+      <div class="col-md-2">
+        <input type="date" class="form-control" [(ngModel)]="filters['date_to']" (ngModelChange)="onFilterChange()">
+      </div>
+      <div class="col-md-3">
+        <select class="form-select" [(ngModel)]="sortOption" (ngModelChange)="onFilterChange()">
+          @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button class="btn btn-outline-secondary w-100" (click)="resetFilters()" title="Szűrők törlése">&#x2715; Törlés</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (loading) {
+  <div class="text-center py-5"><div class="spinner-border"></div></div>
+}
+
+@if (!loading && reports.length === 0) {
+  <div class="alert alert-info">Nincs találat.</div>
+}
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  @for (report of pagedReports; track report.id) {
+    <div class="col d-flex">
+      <a [routerLink]="['/reports', report.id]" class="text-decoration-none report-card-link w-100">
+        <div class="card h-100 report-card">
+          @if (report.images?.length > 0) {
+            <img [src]="imageUrl(report.images[0].image_path)" class="card-img-top report-card-img" alt="">
+          }
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="badge bg-secondary">{{ report.category?.name }}</span>
+            </div>
+            <h5 class="card-title">{{ report.title }}</h5>
+            <p class="card-text text-muted small">{{ report.description | slice:0:120 }}...</p>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">{{ report.date | date:'yyyy.MM.dd' }}</small>
+            <div>
+              <span class="me-2 text-success"><i class="bi bi-hand-thumbs-up-fill"></i> {{ report.upvotes_count }}</span>
+              <span class="me-3 text-danger"><i class="bi bi-hand-thumbs-down-fill"></i> {{ report.downvotes_count }}</span>
+              <span class="btn btn-sm btn-outline-primary">Részletek</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  }
+</div>
+
+@if (totalPages > 1) {
+  <nav aria-label="pagination" class="d-flex justify-content-center align-items-center gap-1 mt-5">
+    <button class="btn btn-sm pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)">
+      &#8592;
+    </button>
+
+    @for (page of pageNumbers; track page) {
+      <button class="btn btn-sm pagination-btn"
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    }
+
+    <button class="btn btn-sm pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+      &#8594;
+    </button>
+  </nav>
+}

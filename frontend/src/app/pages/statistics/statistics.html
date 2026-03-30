@@ -1,0 +1,129 @@
+@if (loading) {
+  <div class="text-center py-5"><div class="spinner-border"></div></div>
+}
+
+@if (stats) {
+  <h3 class="mb-4">Statisztikák</h3>
+
+  <!-- Összesítők -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="display-4 fw-bold text-primary">{{ stats.total_reports }}</div>
+          <div class="text-muted mt-1">Jóváhagyott bejelentés</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="display-4 fw-bold text-success">{{ stats.total_users }}</div>
+          <div class="text-muted mt-1">Regisztrált felhasználó</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center h-100">
+        <div class="card-body">
+          <div class="display-4 fw-bold text-warning">{{ stats.total_votes }}</div>
+          <div class="text-muted mt-1">Leadott szavazat</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Státusz szerinti bontás -->
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-header fw-semibold">Bejelentések státusz szerint</div>
+        <div class="card-body">
+          @for (entry of (stats.by_status | keyvalue); track entry.key) {
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-{{ statusClass($any(entry.key)) }}">{{ statusLabel($any(entry.key)) }}</span>
+              <span class="fw-bold">{{ entry.value }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Kategória szerinti bontás -->
+    <div class="col-md-8">
+      <div class="card h-100">
+        <div class="card-header fw-semibold">Bejelentések kategória szerint</div>
+        <div class="card-body">
+          @for (cat of stats.by_category; track cat.id) {
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span>{{ cat.name }}</span>
+                <small class="text-muted">{{ cat.reports_count }}</small>
+              </div>
+              <div class="progress progress-sm">
+                <div
+                  class="progress-bar"
+                  [style.width.%]="categoryBarWidth(cat.reports_count)">
+                </div>
+              </div>
+            </div>
+          }
+          @if (!stats.by_category?.length) {
+            <p class="text-muted">Még nincs adat.</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 5 leghitelesebb -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header fw-semibold">🏆 Top 5 leghitelesebb bejelentés</div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            @for (r of stats.top_credible; track r.id; let i = $index) {
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="text-muted me-2">{{ i + 1 }}.</span>
+                  <a [routerLink]="['/reports', r.id]">{{ r.title }}</a>
+                  @if (r.category) {
+                    <small class="text-muted ms-2">{{ r.category.name }}</small>
+                  }
+                </div>
+                <span class="badge bg-success rounded-pill">{{ r.score }}</span>
+              </li>
+            }
+            @if (!stats.top_credible?.length) {
+              <li class="list-group-item text-muted">Még nincs szavazat.</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legutóbbi bejelentések -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header fw-semibold">🕐 Legutóbbi bejelentések</div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            @for (r of stats.recent; track r.id) {
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <a [routerLink]="['/reports', r.id]">{{ r.title }}</a>
+                  @if (r.category) {
+                    <small class="text-muted ms-2">{{ r.category.name }}</small>
+                  }
+                </div>
+                <small class="text-muted">{{ r.date | date:'yyyy.MM.dd' }}</small>
+              </li>
+            }
+            @if (!stats.recent?.length) {
+              <li class="list-group-item text-muted">Nincsenek bejelentések.</li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+}

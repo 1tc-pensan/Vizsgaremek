@@ -1,0 +1,10 @@
+/* Admin – Kategóriák */
+.list-group-item {
+  background-color: var(--sf-surface);
+  border-color: var(--sf-border);
+  color: var(--sf-text);
+}
+
+.list-group-item strong {
+  color: var(--sf-text);
+}

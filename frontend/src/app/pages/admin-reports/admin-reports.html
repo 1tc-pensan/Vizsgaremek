@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Admin – Bejelentések moderálása</h3>
+  <select class="form-select form-select-sm w-auto" [(ngModel)]="statusFilter" (change)="load()">
+    <option value="">Minden státusz</option>
+    <option value="pending">Várakozik</option>
+    <option value="approved">Jóváhagyva</option>
+    <option value="rejected">Elutasítva</option>
+  </select>
+</div>
+
+@if (loading) {
+  <div class="text-center py-4"><div class="spinner-border"></div></div>
+}
+
+<div class="table-responsive">
+  <table class="table table-hover table-sm align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Cím</th>
+        <th>Bejelentő</th>
+        <th>Kategória</th>
+        <th>Dátum</th>
+        <th>Státusz</th>
+        <th>Műveletek</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (report of reports; track report.id) {
+        <tr>
+          <td>{{ report.id }}</td>
+          <td><a [routerLink]="['/reports', report.id]">{{ report.title }}</a></td>
+          <td>{{ report.user?.email }}</td>
+          <td>{{ report.category?.name }}</td>
+          <td>{{ report.date | date:'yyyy.MM.dd' }}</td>
+          <td><span class="badge bg-{{ statusClass(report.status) }}">{{ statusLabel(report.status) }}</span></td>
+          <td>
+            @if (report.status !== 'approved') {
+              <button class="btn btn-sm btn-success me-1" (click)="approve(report.id)" title="Jóváhagy">✓</button>
+            }
+            @if (report.status !== 'rejected') {
+              <button class="btn btn-sm btn-warning me-1" (click)="reject(report.id)" title="Elutasít">✗</button>
+            }
+            <button class="btn btn-sm btn-danger" (click)="delete(report.id)" title="Töröl">🗑</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (!loading && reports.length === 0) {
+  <div class="alert alert-info">Nincs bejelentés.</div>
+}

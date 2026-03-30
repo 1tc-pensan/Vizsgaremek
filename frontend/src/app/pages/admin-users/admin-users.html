@@ -1,0 +1,60 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Admin – Felhasználók</h3>
+  <div class="d-flex gap-2">
+    <input type="text" class="form-control form-control-sm" [(ngModel)]="search" placeholder="Keresés..." (keyup.enter)="load()">
+    <button class="btn btn-sm btn-primary" (click)="load()">Keresés</button>
+  </div>
+</div>
+
+@if (loading) {
+  <div class="text-center py-4"><div class="spinner-border"></div></div>
+}
+
+<div class="table-responsive">
+  <table class="table table-hover table-sm align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>#</th>
+        <th>Név</th>
+        <th>Email</th>
+        <th>Szerep</th>
+        <th>Bejelentések</th>
+        <th>Regisztráció</th>
+        <th>Státusz</th>
+        <th>Műveletek</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of users; track user.id) {
+        <tr [class.table-danger]="user.is_banned">
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="badge" [class]="user.role === 'admin' ? 'bg-danger' : 'bg-secondary'">
+              {{ user.role === 'admin' ? 'Admin' : 'Felhasználó' }}
+            </span>
+          </td>
+          <td>{{ user.reports_count }}</td>
+          <td>{{ user.created_at | date:'yyyy.MM.dd' }}</td>
+          <td>
+            @if (user.is_banned) {
+              <span class="badge bg-danger">Tiltva</span>
+            } @else {
+              <span class="badge bg-success">Aktív</span>
+            }
+          </td>
+          <td>
+            @if (user.role !== 'admin') {
+              @if (user.is_banned) {
+                <button class="btn btn-sm btn-success" (click)="unban(user.id)">Feloldás</button>
+              } @else {
+                <button class="btn btn-sm btn-danger" (click)="ban(user.id)">Tiltás</button>
+              }
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

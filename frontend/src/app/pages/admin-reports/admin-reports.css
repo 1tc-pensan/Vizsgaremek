@@ -1,0 +1,9 @@
+/* Admin – Bejelentések */
+.table tbody tr:hover td {
+  color: var(--sf-text);
+}
+
+/* Akció gombok mérete */
+.btn-sm {
+  font-size: 0.78rem;
+}
