@@ -650,36 +650,6 @@ public function test_admin_can_approve_report(): void
 }
 ```
 
----
-
-## 11. CORS és biztonsági beállítások
-
-### CORS konfiguráció (`config/cors.php`)
-```php
-'paths'            => ['api/*', 'sanctum/csrf-cookie'],
-'allowed_origins'  => ['http://localhost:4200'],
-'allowed_methods'  => ['*'],
-'allowed_headers'  => ['*'],
-'supports_credentials' => true,
-```
-
-### Sanctum konfiguráció (`config/sanctum.php`)
-```php
-'expiration'  => null,        // Token nem jár le automatikusan
-'stateful'    => ['localhost', '127.0.0.1', '::1'],
-```
-
-### Biztonsági mechanizmusok
-- **Token alapú autentikáció** – Laravel Sanctum Bearer token
-- **Jelszó hashelés** – bcrypt (Laravel alapértelmezett)
-- **Form Request validáció** – minden bemenet szerver oldalon validálva
-- **Soft delete** – adatok nem törlődnek véglegesen
-- **Banned user middleware** – kitiltott felhasználók API-blokkolása
-- **Admin middleware** – jogosultság ellenőrzés admin végpontokon
-- **Unique constraint** – egy szavazat / felhasználó / bejelentés
-
----
-
 ## 12. Mappastruktúra
 
 ```
